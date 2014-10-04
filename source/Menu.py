@@ -12,7 +12,7 @@ class Menu:
                 {'name': 'down', 'src': 'start', 'dst': 'credits'},
                 {'name': 'down', 'src': 'credits', 'dst': 'start'}] })
 
-    def processInput(self, event):
+    def process_input(self, event):
         if event.type == KEYDOWN:
                 if event.key == K_RETURN:
                     return "enter"
@@ -32,28 +32,28 @@ class Menu:
 
     def render(self):
         color = (0, 0, 0)
-        textSurface = resources.get("basicFont").render('Menu', True, color, (255, 255, 255))
-        textRect = textSurface.get_rect()
-        textRect.centerx = self.display.get_rect().centerx
-        textRect.centery = self.display.get_rect().centery - 50
-        self.display.blit(textSurface, textRect)
+        text_surface = resources.get("basicFont").render('Menu', True, color, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.centerx = self.display.get_rect().centerx
+        text_rect.centery = self.display.get_rect().centery - 50
+        self.display.blit(text_surface, text_rect)
 
         if self.fsm.current == "start":
             color = (255, 0, 0)
         else:
             color = (0, 0, 255)
-        textSurface = resources.get("basicFont").render('Start', True, color, (255, 255, 255))
-        textRect = textSurface.get_rect()
-        textRect.right = self.display.get_rect().centerx -  10
-        textRect.centery = self.display.get_rect().centery + 30
-        self.display.blit(textSurface, textRect)
+        text_surface = resources.get("basicFont").render('Start', True, color, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.right = self.display.get_rect().centerx -  10
+        text_rect.centery = self.display.get_rect().centery + 30
+        self.display.blit(text_surface, text_rect)
 
         if self.fsm.current == "credits":
             color = (255, 0, 0)
         else:
             color = (0, 0, 255)
-        textSurface = resources.get("basicFont").render('Credits', True, color, (255, 255, 255))
-        textRect = textSurface.get_rect()
-        textRect.left = self.display.get_rect().centerx +  10
-        textRect.centery = self.display.get_rect().centery + 30
-        self.display.blit(textSurface, textRect)
+        text_surface = resources.get("basicFont").render('Credits', True, color, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.left = self.display.get_rect().centerx +  10
+        text_rect.centery = self.display.get_rect().centery + 30
+        self.display.blit(text_surface, text_rect)

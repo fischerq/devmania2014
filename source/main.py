@@ -3,20 +3,20 @@ from pygame.locals import *
 from application import Application
 import resources
 
-fps = 60
-title = "Game" # TODO
+title = "SuperMemeBros"
 clearColor = pygame.Color(255, 255, 255)
+
 
 def main():
     # set up pygame
     pygame.init()
     # set up the window
-    windowSurface = pygame.display.set_mode((1024, 568), pygame.DOUBLEBUF | pygame.HWSURFACE) #pygame.FULLSCREEN
+    window_surface = pygame.display.set_mode((1024, 568), pygame.DOUBLEBUF | pygame.HWSURFACE) #pygame.FULLSCREEN
     pygame.display.set_caption(title)
-    fpsClock = pygame.time.Clock()
-    app = Application(windowSurface)
+    fps_clock = pygame.time.Clock()
+    app = Application(window_surface)
     resources.load()
-    windowActive = True
+    window_active = True
     # run the game loop
     while True:
         #read input
@@ -26,21 +26,21 @@ def main():
                 sys.exit()
             elif event.type == ACTIVEEVENT:
                 if event.state == 2:
-                    windowActive = False
+                    window_active = False
                 elif event.state == 1:
-                    windowActive = True
+                    window_active = True
                 elif event.state == 6:
-                    windowActive = False
+                    window_active = False
                 #print event
             else:
-                if windowActive:
+                if window_active:
                     app.input(event)
-        if windowActive:
+        if window_active:
             app.update()
-            windowSurface.fill(clearColor)
+            window_surface.fill(clearColor)
             app.render()
             pygame.display.update()
-        fpsClock.tick(fps)
+        fps_clock.tick(resources.get("fps"))
 
 
 if __name__ == '__main__':

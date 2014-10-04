@@ -1,9 +1,8 @@
-import pygame
-import resources
 from menu import Menu
 from game import Game
 from credits import Credits
 from fysom import Fysom
+
 
 class Application():
     def __init__(self, display):
@@ -15,29 +14,30 @@ class Application():
                 {'name': 'finish', 'src': 'game', 'dst': 'menu'},
                 {'name': 'credits', 'src': 'menu', 'dst': 'credits'},
                 {'name': 'menu', 'src': 'credits', 'dst': 'menu'} ] })
-        self.fsm.onchangestate = self.changeState
+        self.fsm.onchangestate = Application.change_state
         self.commands = []
-        self.activeState = Menu(self.display)
+        self.active_state = Menu(self.display)
 
-    def changeState(self, event):
+    @staticmethod
+    def change_state(event):
         app = event.app
         if event.dst == "menu":
-            app.activeState = Menu(app.display)
+            app.active_state = Menu(app.display)
         elif event.dst == "game":
-            app.activeState = Game(app.display)
+            app.active_state = Game(app.display)
         elif event.dst == "credits":
-            app.activeState = Credits(app.display)
+            app.active_state = Credits(app.display)
 
     def input(self, event):
-        command = self.activeState.processInput(event)
+        command = self.active_state.process_input(event)
         if command != None:
             self.commands.append(command)
 
     def update(self):
-        transition = self.activeState.update(self.commands)
-        if transition != None:
+        transition = self.active_state.update(self.commands)
+        if transition is not None:
             self.fsm.trigger(transition, app=self)
         self.commands = []
 
     def render(self):
-        self.activeState.render()
+        self.active_state.render()
