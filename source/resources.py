@@ -24,16 +24,16 @@ def load():
     resources["imgMenuTitle"] = pygame.image.load("../data/img/title.png").convert_alpha()
 
     resources["slowFactor"] = 0.05
-    resources["gravity"] = 500
+    resources["gravity"] = 600
 
     resources["normalSpeed"] = 250
-    resources["normalTime"] = 0.25
+    resources["normalTime"] = 0.20
 
     resources["impactFactor"] = 2
     resources["impactTimeFactor"] = 0.5
 
     resources["jumpSpeed"] = 300
-    resources["airActions"] = 5
+    resources["airActions"] = 10
 
     resources["turnFactor"] = 0.9
     resources["impactThreshold"] = 0.2
@@ -41,7 +41,7 @@ def load():
     resources["hitFactor"] = 1
 
     resources["shieldDuration"] = 0.4
-    resources["shieldTime"] = 0.5
+    resources["shieldTime"] = 0.2
 
 def get(name):
     return resources[name]

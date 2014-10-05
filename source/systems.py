@@ -70,8 +70,8 @@ class CollisionSystem(System):
                             velocity.dx -= 0.5*result["direction"][0]*projection
                             velocity.dy -= 0.5*result["direction"][1]*projection
                         else:
-                            velocity.dx -= 1.5*result["direction"][0]*projection
-                            velocity.dy -= 1.5*result["direction"][1]*projection
+                            velocity.dx -= 1.1*result["direction"][0]*projection
+                            velocity.dy -= 1.1*result["direction"][1]*projection
                         groundable = self.entity_manager.component_for_entity(entity, Groundable)
                         if groundable is not None:
                             groundable.grounded = True
@@ -142,6 +142,11 @@ class ActorSystem(System):
                 if actor.stunned < 0:
                     actor.stunned = 0
 
+            if actor.shielded > 0:
+                actor.shielded -= dt
+                if actor.shielded < 0:
+                    actor.shielded = 0
+
             velocity_change = (0, 0)
             action_time = 0
             for command in actor.commands:
@@ -164,7 +169,7 @@ class ActorSystem(System):
             if grounded.grounded:
                 actor.air_actions = resources.get("airActions")
 
-            if actor.acting == 0 and actor.stunned == 0 and (grounded.grounded or actor.air_actions > 0):
+            if actor.acting == 0 and actor.stunned == 0:
                 if actor.orientation != actor.direction and actor.direction == "left" or actor.direction == "right":
                     if grounded.grounded:
                         actor_velocity.dx = actor_velocity.dx * resources.get("turnFactor")
@@ -179,7 +184,7 @@ class ActorSystem(System):
                             actor.config["hitshape"]["center"][0] *= -1
                         drawable.mirrored = False
 
-
+            if actor.acting == 0 and actor.stunned == 0 and (grounded.grounded or actor.air_actions > 0):
 
                 direction = ActorSystem.direction_to_vec(actor.direction)
 

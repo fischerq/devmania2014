@@ -27,8 +27,12 @@ class Game:
         self.lives = [5, 5]
         self.winner = None
         self.player_controllers = resources.get("player_joysticks")
+        #resources.get("logfile").write("p1 controller {}\n".format(self.player_controllers[0]))
+        #resources.get("logfile").write("that controller id {}\n".format(resources.get("joysticks")[self.player_controllers[0]].get_id()))
+        #resources.get("logfile").write("p2 controller {}\n".format(self.player_controllers[1]))
+        #resources.get("logfile").write("that controller id {}\n".format(resources.get("joysticks")[self.player_controllers[1]].get_id()))
         self.old_sticks = []
-        self.joysticks = [resources.get("joysticks")[self.player_controllers[0]], resources.get("joysticks")[self.player_controllers[1]]]
+        self.joysticks = [resources.get("joysticks")[resources.get("player_joysticks")[0]], resources.get("joysticks")[resources.get("player_joysticks")[1]]]
         self.maxmin = [0, 0, 0, 0]
         self.logfile = resources.get("logfile")
         self.create_world()
@@ -67,10 +71,10 @@ class Game:
         elif event.type == JOYBUTTONDOWN:
             player = None
             if event.joy == self.player_controllers[0]:
-                resources.get("logfile").write("p1 button{} {}\n".format(event.joy, self.player_controllers[0]))
+                #resources.get("logfile").write("p1 button{} {}\n".format(event.joy, self.player_controllers[0]))
                 player = 0
             elif event.joy == self.player_controllers[1]:
-                resources.get("logfile").write("p2 button{} {}\n".format(event.joy, self.player_controllers[1]))
+                #resources.get("logfile").write("p2 button{} {}\n".format(event.joy, self.player_controllers[1]))
                 player = 1
             return (player, utils.map_buttons(event.button))
         elif event.type == JOYBUTTONUP:
@@ -108,8 +112,7 @@ class Game:
                     direction[0] = "down"
                 elif stickdir[1] < -0.7:
                     direction[0] = "up"
-
-            #self.logfile.write("p1 dir {}\n".format(direction[0]))
+                #self.logfile.write("p1 dir {}\n".format(direction[0]))
 
             change2 = length(sub(self.old_sticks[1]["stick"], stick_1["stick"]))
             if change2 > resources.get("impactThreshold"):
@@ -177,7 +180,7 @@ class Game:
         return None
 
     def evaluate_joystick(self, id):
-        joystick = self.joysticks[self.player_controllers[id]]
+        joystick = self.joysticks[id]
         state = dict()
         state["stick"] = (joystick.get_axis(0), joystick.get_axis(1))
         #state["cstick"] = (0, 0)#(joystick.get_axis(2), joystick.get_axis(3))
@@ -188,12 +191,12 @@ class Game:
             self.drawing_systems.update(1)
 
             icon = resources.get("imgAloneIcon")
-            position = (50, 500)
+            position = (50, 650)
             for i in range(0, self.lives[0]):
                 self.display.blit(icon, (position[0]+i*icon.get_width(), position[1]))
 
             icon = resources.get("imgNyancatIcon")
-            position = (700, 500)
+            position = (700, 650)
             for i in range(0, self.lives[1]):
                 self.display.blit(icon, (position[0]+i*icon.get_width(), position[1]))
 
