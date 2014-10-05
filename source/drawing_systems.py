@@ -10,9 +10,13 @@ class DrawingSystem(System):
         self.display_rect = self.display.get_rect()
 
     def update(self, dt):
+        self.display.fill((0, 50, 100))
         for entity, drawable in self.entity_manager.pairs_for_type(Drawable):
             position = self.entity_manager.component_for_entity(entity, Position)
-            self.display.blit(drawable.image, self.screen_position(position, drawable.image))
+            image = drawable.image
+            if drawable.mirrored:
+                image = pygame.transform.flip(image, True, False)
+            self.display.blit(image, self.screen_position(position, drawable.image))
 
     def screen_position(self, position, image):
         return (self.display_rect.centerx + position.x - image.get_width()/2, self.display_rect.centery + position.y - image.get_height()/2)
@@ -27,28 +31,31 @@ class DebugDrawingSystem(System):
     def update(self, dt):
         collision_color = pygame.Color(100, 100, 100)
         for entity, collision in self.entity_manager.pairs_for_type(Collision):
-            position = self.entity_manager.component_for_entity(entity, Position)
-            x = position.x + collision.shape["center"][0]
-            y = position.y + collision.shape["center"][1]
-            if collision.shape["type"] == "circle":
-                pygame.draw.circle(self.display, collision_color, self.screen_position((x, y)), collision.shape["radius"], 0)
-            elif collision.shape["type"] == "rect":
-                screen_position = self.screen_position((x, y))
-                rect = (screen_position[0] - collision.shape["width"]/2,
-                        screen_position[1] - collision.shape["height"]/2,
-                        collision.shape["width"], collision.shape["height"])
-                pygame.draw.rect(self.display, collision_color, rect, 0)
+            for shape in collision.shapes:
+                position = self.entity_manager.component_for_entity(entity, Position)
+                x = position.x + shape["center"][0]
+                y = position.y + shape["center"][1]
+                if shape["type"] == "circle":
+                    pygame.draw.circle(self.display, collision_color, self.screen_position((x, y)), shape["radius"], 0)
+                elif shape["type"] == "rect":
+                    screen_position = self.screen_position((x, y))
+                    rect = (screen_position[0] - shape["width"]/2,
+                            screen_position[1] - shape["height"]/2,
+                            shape["width"], shape["height"])
+                    pygame.draw.rect(self.display, collision_color, rect, 0)
 
-        for entity, debug_drawable in self.entity_manager.pairs_for_type(DebugDrawable):
+        for entity, hurtvol in self.entity_manager.pairs_for_type(Hurtvolume):
             position = self.entity_manager.component_for_entity(entity, Position)
-            if debug_drawable.shape["type"] == "circle":
-                pygame.draw.circle(self.display, debug_drawable.color, self.screen_position((position.x, position.y)), debug_drawable.shape["radius"], 0)
-            elif debug_drawable.shape["type"] == "rect":
-                screen_position = self.screen_position((position.x, position.y))
-                rect = (screen_position[0] - debug_drawable.shape["width"]/2,
-                        screen_position[1] - debug_drawable.shape["height"]/2,
-                        debug_drawable.shape["width"], debug_drawable.shape["height"])
-                pygame.draw.rect(self.display, debug_drawable.color, rect, 0)
+            x = position.x + hurtvol.shape["center"][0]
+            y = position.y + hurtvol.shape["center"][1]
+            if hurtvol.shape["type"] == "circle":
+                pygame.draw.circle(self.display, (255, 255, 0), self.screen_position((x, y)), hurtvol.shape["radius"], 0)
+            elif hurtvol.shape["type"] == "rect":
+                screen_position = self.screen_position((x, y))
+                rect = (screen_position[0] - hurtvol.shape["width"]/2,
+                        screen_position[1] - hurtvol.shape["height"]/2,
+                        hurtvol.shape["width"], hurtvol.shape["height"])
+                pygame.draw.rect(self.display, (255, 255, 0), rect, 0)
 
     def screen_position(self, position):
         return (int(self.display_rect.centerx + position[0]), int(self.display_rect.centery + position[1]))

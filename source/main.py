@@ -14,6 +14,11 @@ def main():
     window_surface = pygame.display.set_mode((1024, 568), pygame.DOUBLEBUF | pygame.HWSURFACE) #pygame.FULLSCREEN
     pygame.display.set_caption(title)
     fps_clock = pygame.time.Clock()
+    joysticks = []
+    for i in range(0, pygame.joystick.get_count()):
+            joysticks.append(pygame.joystick.Joystick(i))
+            joysticks[-1].init()
+    resources.set("joysticks", joysticks)
     app = Application(window_surface)
     resources.load()
     window_active = True
