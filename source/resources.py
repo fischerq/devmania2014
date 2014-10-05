@@ -11,6 +11,8 @@ def load():
     resources["imgForeverAlone"] = pygame.image.load("../data/img/forever_alone.png").convert_alpha()
     resources["imgNyancat"] = pygame.image.load("../data/img/nyancat_clean.png").convert_alpha()
     resources["imgTerrain"] = pygame.image.load("../data/img/terrain.png").convert_alpha()
+    resources["imgTile"] = pygame.image.load("../data/img/regenbogen.png").convert_alpha()
+    resources["imgCake"] = pygame.image.load("../data/img/cake1.png").convert_alpha()
 
     resources["imgNyancatIcon"] = pygame.transform.scale(pygame.image.load("../data/img/cat1.png").convert_alpha(), (49, 60))
     resources["imgAloneIcon"] = pygame.transform.scale(pygame.image.load("../data/img/lolly1.png").convert_alpha(), (49, 60))
@@ -21,7 +23,7 @@ def load():
     resources["imgBackgroundMenu"] = pygame.image.load("../data/img/bg/bg1.png").convert_alpha()
     resources["imgMenuTitle"] = pygame.image.load("../data/img/title.png").convert_alpha()
 
-    resources["slowFactor"] = 0.03
+    resources["slowFactor"] = 0.05
     resources["gravity"] = 500
 
     resources["normalSpeed"] = 250
@@ -35,6 +37,11 @@ def load():
 
     resources["turnFactor"] = 0.9
     resources["impactThreshold"] = 0.2
+
+    resources["hitFactor"] = 1
+
+    resources["shieldDuration"] = 0.4
+    resources["shieldTime"] = 0.5
 
 def get(name):
     return resources[name]

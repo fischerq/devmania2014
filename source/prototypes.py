@@ -10,7 +10,6 @@ def create_unit(position):
     entities.add_component(unit, Velocity(0, 0))
     entities.add_component(unit, Groundable())
     entities.add_component(unit, Gravity())
-    entities.add_component(unit, Actor())
     return unit
 
 
@@ -20,22 +19,40 @@ def create_player(position, type):
         image = resources.get("imgNyancat")
         entities.add_component(player, Collision(rect((0, 0), 65, 55)))
         entities.add_component(player, Hurtvolume(rect((0, 0), 65, 55)))
+        config = dict()
+        config["hitshape"] = rect([40, 0], 50, 30)
+        config["hitdamage"] = 10
+        config["hitstun"] = 0.2
+        config["hittime"] = 0.1
+        config["speedMult"] = 1.6
+        entities.add_component(player, Actor(config))
     elif type == "foreveralone":
         image = resources.get("imgForeverAlone")
-        entities.add_component(player, Collision(rect((0, 30), 40, 20)))
-        collision = entities.component_for_entity(player, Collision)
-        collision.add_shape(circle((0, -10), 70))
-        entities.add_component(player, Hurtvolume(rect((0, 30), 40, 20)))
+        entities.add_component(player, Collision(circle((0, -10), 70)))
+        entities.add_component(player, Hurtvolume(circle((0, -10), 70)))
+        config = dict()
+        config["hitshape"] = circle([60, 0], 40)
+        config["hitdamage"] = 50
+        config["hitstun"] = 0.4
+        config["hittime"] = 0.4
+        config["speedMult"] = 1.0
+        entities.add_component(player, Actor(config))
     entities.add_component(player, Drawable(image))
-
-
     return player
 
 
-def create_terrain(position, rectangle, image):
+def create_terrain(position, shape, image):
     terrain = entities.create_entity()
     entities.add_component(terrain, Position(position[0], position[1]))
-    entities.add_component(terrain, Collision(rect((0, 0), rectangle[0], rectangle[1])))
+    entities.add_component(terrain, Collision(shape))
     entities.add_component(terrain, Drawable(image))
     entities.add_component(terrain, Immovable())
     return terrain
+
+def create_hitvolume(player):
+    hitvol = entities.create_entity()
+    actor = entities.component_for_entity(player, Actor)
+    position = entities.component_for_entity(player, Position)
+    entities.add_component(hitvol, Hitvolume(player, dict(actor.config["hitshape"]), actor.config["hitdamage"], actor.config["hitstun"]))
+    entities.add_component(hitvol, Position(position.x, position.y))
+    resources.get("logfile").write("{}, {}, {}\n".format(actor.config["hitshape"], position.x, position.y))

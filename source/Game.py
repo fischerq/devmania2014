@@ -17,6 +17,7 @@ class Game:
         self.systems.add_system(LinearMotionSystem())
         self.systems.add_system(GravitySystem())
         self.systems.add_system(GroundingSystem())
+        self.systems.add_system(DamageSystem())
         self.systems.add_system(CollisionSystem())
         self.systems.add_system(ActorSystem())
         self.drawing_systems = SystemManager(self.entities)
@@ -36,7 +37,17 @@ class Game:
         p1 = prototypes.create_player((-100, 0), "foreveralone")
         p2 = prototypes.create_player((100, 0), "nyancat")
         self.players = (p1, p2)
-        terrain = prototypes.create_terrain((0, 200), (750, 60), resources.get("imgTerrain"))
+        tiled = pygame.Surface((378, 54))
+        for i in range(0, 7):
+            tiled.blit(resources.get("imgTile"), (54*i, 0))
+        prototypes.create_terrain((0, -50), rect((0, 0),378, 54), tiled)
+        tiled = pygame.Surface((756, 54))
+        for i in range(0, 14):
+            tiled.blit(resources.get("imgTile"), (54*i, 0))
+        prototypes.create_terrain((0, 300), rect((0, 0),756, 54), tiled)
+
+        prototypes.create_terrain((-400, 200), circle((0, 0),80), resources.get("imgCake"))
+        prototypes.create_terrain((400, 200), circle((0, 0),80), resources.get("imgCake"))
 
     def process_input(self, event):
         if event.type == KEYDOWN:
@@ -56,8 +67,10 @@ class Game:
         elif event.type == JOYBUTTONDOWN:
             player = None
             if event.joy == self.player_controllers[0]:
+                resources.get("logfile").write("p1 button{} {}\n".format(event.joy, self.player_controllers[0]))
                 player = 0
             elif event.joy == self.player_controllers[1]:
+                resources.get("logfile").write("p2 button{} {}\n".format(event.joy, self.player_controllers[1]))
                 player = 1
             return (player, utils.map_buttons(event.button))
         elif event.type == JOYBUTTONUP:
@@ -83,7 +96,7 @@ class Game:
                 impact[0] = True
             #self.logfile.write("p1 {}\n".format(stick_0["stick"]))
             position = length(stick_0["stick"])
-            if position < 0.1:
+            if position < 0.2:
                 direction[0] = "neutral"
             else:
                 stickdir = utils.normalized(stick_0["stick"])
@@ -102,7 +115,7 @@ class Game:
             if change2 > resources.get("impactThreshold"):
                 impact[1] = True
             position = length(stick_1["stick"])
-            if position < 0.1:
+            if position < 0.2:
                 direction[1] = "neutral"
             else:
                 stickdir = utils.normalized(stick_1["stick"])
@@ -121,9 +134,9 @@ class Game:
             actor.direction = direction[0]
             actor.impact = impact[0]
 
-            actor = self.entities.component_for_entity(self.players[1], Actor)
-            actor.direction = direction[1]
-            actor.impact = impact[1]
+            actor2 = self.entities.component_for_entity(self.players[1], Actor)
+            actor2.direction = direction[1]
+            actor2.impact = impact[1]
         else:
             self.old_sticks = [None, None]
 
@@ -142,17 +155,23 @@ class Game:
         self.systems.update(1.0/resources.get("fps"))
 
         position = self.entities.component_for_entity(self.players[0], Position)
-        if position.x < -512 or position.x > 512 or position.y < -284 or position.y > 400:
+        if position.x < -512 or position.x > 512 or position.y < -500 or position.y > 384:
             self.lives[0] -= 1
             position.x = 0
             position.y = 0
+            velocity = self.entities.component_for_entity(self.players[0], Velocity)
+            velocity.dx = 0
+            velocity.dy = 0
             if self.lives[0] == 0:
                 self.winner = 1
-        position = self.entities.component_for_entity(self.players[1], Position)
-        if position.x < -512 or position.x > 512 or position.y < -284 or position.y > 400:
+        position2 = self.entities.component_for_entity(self.players[1], Position)
+        if position2.x < -512 or position2.x > 512 or position2.y < -500 or position2.y > 384:
             self.lives[1] -= 1
-            position.x = 0
-            position.y = 0
+            position2.x = 0
+            position2.y = 0
+            velocity2 = self.entities.component_for_entity(self.players[1], Velocity)
+            velocity2.dx = 0
+            velocity2.dy = 0
             if self.lives[1] == 0:
                 self.winner = 0
         return None
@@ -175,11 +194,11 @@ class Game:
 
             icon = resources.get("imgNyancatIcon")
             position = (700, 500)
-            for i in range(0, self.lives[0]):
+            for i in range(0, self.lives[1]):
                 self.display.blit(icon, (position[0]+i*icon.get_width(), position[1]))
 
         else:
-            self.display.blit(resources.get("imgBackgroundGO"), (0, 0))
+            #self.display.blit(resources.get("imgBackgroundGO"), (0, 0))
 
             self.display.blit(resources.get("imgGOString"), (300, 150))
 

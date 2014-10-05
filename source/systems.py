@@ -3,6 +3,7 @@ from ecs.models import System
 from utils import *
 import math
 import resources
+import prototypes
 
 class LinearMotionSystem(System):
     def __init__(self):
@@ -65,8 +66,12 @@ class CollisionSystem(System):
                         position.y += result["direction"][1]*result["depth"]
                         velocity = self.entity_manager.component_for_entity(entity, Velocity)
                         projection = dot((velocity.dx, velocity.dy), result["direction"])
-                        velocity.dx -= result["direction"][0]*projection
-                        velocity.dy -= result["direction"][1]*projection
+                        if projection > 0:
+                            velocity.dx -= 0.5*result["direction"][0]*projection
+                            velocity.dy -= 0.5*result["direction"][1]*projection
+                        else:
+                            velocity.dx -= 1.5*result["direction"][0]*projection
+                            velocity.dy -= 1.5*result["direction"][1]*projection
                         groundable = self.entity_manager.component_for_entity(entity, Groundable)
                         if groundable is not None:
                             groundable.grounded = True
@@ -75,8 +80,11 @@ class CollisionSystem(System):
                         position2.y -= result["direction"][1]*result["depth"]
                         velocity2 = self.entity_manager.component_for_entity(entity2, Velocity)
                         projection2 = dot((velocity2.dx, velocity2.dy), result["direction"])
-                        velocity2.dx -= result["direction"][0]*projection2
-                        velocity2.dy -= result["direction"][1]*projection2
+
+                        if projection2 > 0:
+                            projection2 = 0
+                        velocity2.dx -= 1.7*result["direction"][0]*projection2
+                        velocity2.dy -= 1.7*result["direction"][1]*projection2
                         groundable2 = self.entity_manager.component_for_entity(entity2, Groundable)
                         if groundable2 is not None:
                             groundable2.grounded = True
@@ -140,8 +148,14 @@ class ActorSystem(System):
                 if actor.acting > 0 or actor.stunned > 0:
                     continue
                 if command == "jump":
-                    velocity_change = (0, -resources.get("jumpSpeed"))
+                    velocity_change = (0, -resources.get("jumpSpeed")*actor.config["speedMult"])
                     action_time = resources.get("normalTime")
+                elif command == "shield":
+                    actor.shielded = resources.get("shieldDuration")
+                    action_time = resources.get("shieldTime")
+                elif command == "attack":
+                    prototypes.create_hitvolume(entity)
+                    action_time = actor.config["hittime"]
             actor.acting += action_time
             actor_velocity.dx += velocity_change[0]
             actor_velocity.dy += velocity_change[1]
@@ -157,14 +171,20 @@ class ActorSystem(System):
                     actor.orientation = actor.direction
                     drawable = self.entity_manager.component_for_entity(entity, Drawable)
                     if actor.orientation == "left":
+                        if actor.config["hitshape"]["center"][0] > 0:
+                            actor.config["hitshape"]["center"][0] *= -1
                         drawable.mirrored = True
                     else:
+                        if actor.config["hitshape"]["center"][0] < 0:
+                            actor.config["hitshape"]["center"][0] *= -1
                         drawable.mirrored = False
+
+
 
                 direction = ActorSystem.direction_to_vec(actor.direction)
 
                 if actor.direction == "left" or actor.direction == "right":
-                    velocity_change = mul(direction, resources.get("normalSpeed"))
+                    velocity_change = mul(direction, resources.get("normalSpeed")*actor.config["speedMult"])
                     action_time = resources.get("normalTime")
                 elif actor.direction == "up":
                     actor.commands.append("jump")
@@ -173,9 +193,9 @@ class ActorSystem(System):
                         velocity_change = (actor_velocity.dx, actor_velocity.dy)
                     else:
                         if math.fabs(actor_velocity.dy) < 20:
-                            velocity_change = (0, -resources.get("jumpSpeed"))
+                            velocity_change = (0, -resources.get("jumpSpeed")*actor.config["speedMult"])
                         else:
-                            velocity_change = (0, -0.5*resources.get("jumpSpeed"))
+                            velocity_change = (0, -0.5*resources.get("jumpSpeed")*actor.config["speedMult"])
                     if actor.impact:
                         velocity_change = mul(velocity_change, -1)
                     else:
@@ -192,12 +212,37 @@ class ActorSystem(System):
 
 class DamageSystem(System):
     def __init__(self):
-        super(GroundingSystem, self).__init__()
+        super(DamageSystem, self).__init__()
 
     def update(self, dt):
         for entity, hurtvolume in self.entity_manager.pairs_for_type(Hurtvolume):
-            for entity, hitvolume in self.entity_manager.pairs_for_type(Hitvolume):
-                pass
+            hurtpos = self.entity_manager.component_for_entity(entity, Position)
+            for entity2, hitvolume in self.entity_manager.pairs_for_type(Hitvolume):
+                if entity == hitvolume.player or not hitvolume.active:
+                    continue
+                hitpos = self.entity_manager.component_for_entity(entity2, Position)
+                collision = collide_shapes((hurtpos, hurtvolume.shape), (hitpos, hitvolume.shape))
+                if collision["occured"]:
+                    actor = self.entity_manager.component_for_entity(entity, Actor)
+                    if actor.shielded:
+                        continue
+                    else:
+                        actor.stunned = hitvolume.stun
+                        actor.damage += hitvolume.damage
+                        hitaccel = mul(collision["direction"], hitvolume.damage * actor.damage * resources.get("hitFactor"))
+                        actor_velocity = self.entity_manager.component_for_entity(entity, Velocity)
+                        actor_velocity.dx += hitaccel[0]
+                        actor_velocity.dy += hitaccel[1]
+
+        volumes = []
+        for entity, hitvolume in self.entity_manager.pairs_for_type(Hitvolume):
+            hitvolume.active = False
+            volumes.append(entity)
+
+        for ent in volumes:
+            pass#self.entity_manager.remove_entity(ent)
+
+
 
 
 

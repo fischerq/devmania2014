@@ -42,7 +42,7 @@ class Groundable(Component):
 
 
 class Actor(Component):
-    def __init__(self):
+    def __init__(self, config):
         super(Actor, self).__init__()
         self.direction = "neutral"
         self.orientation = "right"
@@ -53,6 +53,7 @@ class Actor(Component):
         self.air_actions = resources.get("airActions")
         self.commands = []
         self.damage = 0
+        self.config = config
 
 
 
@@ -65,14 +66,16 @@ class Drawable(Component):
 
 
 class Hitvolume(Component):
-    def __init__(self, player, shape, damage):
+    def __init__(self, player, shape, damage, stun):
         super(Hitvolume, self).__init__()
         self.player = player
         self.shape = shape
         self.damage = damage
+        self.stun = stun
+        self.active = True
 
 class Hurtvolume(Component):
-    def __init__(self, player, shape, damage):
+    def __init__(self, shape):
         super(Hurtvolume, self).__init__()
         self.shape = shape
 

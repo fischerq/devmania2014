@@ -11,7 +11,7 @@ def main():
     # set up pygame
     pygame.init()
     # set up the window
-    window_surface = pygame.display.set_mode((1024, 568), pygame.DOUBLEBUF | pygame.HWSURFACE) #pygame.FULLSCREEN
+    window_surface = pygame.display.set_mode((1024, 768), pygame.DOUBLEBUF | pygame.HWSURFACE) #pygame.FULLSCREEN
     pygame.display.set_caption(title)
     fps_clock = pygame.time.Clock()
     joysticks = []

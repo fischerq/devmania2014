@@ -26,9 +26,12 @@ class Menu:
             if event.type == JOYBUTTONDOWN and event.button == 9:
                 if self.player_controllers[0] is None:
                     self.player_controllers[0] = event.joy
-                elif event.joy != self.player_controllers[0]:
+                elif self.player_controllers[1] is None and event.joy != self.player_controllers[0]:
                     self.player_controllers[1] = event.joy
                     resources.set("player_joysticks", self.player_controllers)
+
+        elif event.type == JOYBUTTONDOWN and event.button == 9:
+                    return "enter"
         return None
 
     def update(self, commands):
@@ -43,7 +46,7 @@ class Menu:
         return None
 
     def render(self):
-        self.display.blit(resources.get("imgBackgroundMenu"), (0, 0))
+        #self.display.blit(resources.get("imgBackgroundMenu"), (0, 0))
 
         self.display.blit(resources.get("imgMenuTitle"), (self.display.get_rect().centerx - resources.get("imgMenuTitle").get_width()/2, self.display.get_rect().centery - resources.get("imgMenuTitle").get_height()/2 - 200))
 
