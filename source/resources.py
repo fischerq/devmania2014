@@ -38,7 +38,7 @@ def load():
     resources["turnFactor"] = 0.9
     resources["impactThreshold"] = 0.2
 
-    resources["hitFactor"] = 1
+    resources["hitFactor"] = 5
 
     resources["shieldDuration"] = 0.4
     resources["shieldTime"] = 0.2

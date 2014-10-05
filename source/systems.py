@@ -17,6 +17,7 @@ class LinearMotionSystem(System):
             #speed = length((velocity.dx, velocity.dy))
             velocity.dx -= resources.get("slowFactor") * velocity.dx
             velocity.dy -= resources.get("slowFactor") * velocity.dy
+            resources.get("logfile").write("v {} {}\n".format(velocity.dx, velocity.dy))
 
 
 class GravitySystem(System):
@@ -70,8 +71,8 @@ class CollisionSystem(System):
                             velocity.dx -= 0.5*result["direction"][0]*projection
                             velocity.dy -= 0.5*result["direction"][1]*projection
                         else:
-                            velocity.dx -= 1.1*result["direction"][0]*projection
-                            velocity.dy -= 1.1*result["direction"][1]*projection
+                            velocity.dx -= 1.5*result["direction"][0]*projection
+                            velocity.dy -= 1.5*result["direction"][1]*projection
                         groundable = self.entity_manager.component_for_entity(entity, Groundable)
                         if groundable is not None:
                             groundable.grounded = True
@@ -234,7 +235,8 @@ class DamageSystem(System):
                     else:
                         actor.stunned = hitvolume.stun
                         actor.damage += hitvolume.damage
-                        hitaccel = mul(collision["direction"], hitvolume.damage * actor.damage * resources.get("hitFactor"))
+                        hitaccel = mul(collision["direction"], (hitvolume.damage + actor.damage) * resources.get("hitFactor"))
+                        resources.get("logfile").write("dmg {} {} {}\n".format(hitvolume.damage, actor.damage, resources.get("hitFactor")))
                         actor_velocity = self.entity_manager.component_for_entity(entity, Velocity)
                         actor_velocity.dx += hitaccel[0]
                         actor_velocity.dy += hitaccel[1]

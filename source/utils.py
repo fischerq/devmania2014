@@ -10,7 +10,10 @@ def length_sq(vector):
 
 def normalized(vector):
     length = math.sqrt(length_sq(vector))
-    return (vector[0]/length, vector[1]/length)
+    if length < 0.01:
+        return (0, 0)
+    else:
+        return (vector[0]/length, vector[1]/length)
 
 
 def sub(a, b):
