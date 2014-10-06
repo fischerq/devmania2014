@@ -68,17 +68,19 @@ class DebugDrawingSystem(System):
                 #pygame.draw.rect(self.display, (255, 255, 0), rect, 0)
 
         for entity, hitvol in self.entity_manager.pairs_for_type(Hitvolume):
+            if not hitvol.active:
+                continue
             position = self.entity_manager.component_for_entity(entity, Position)
             x = position.x + hitvol.shape["center"][0]
             y = position.y + hitvol.shape["center"][1]
             if hitvol.shape["type"] == "circle":
-                pass#pygame.draw.circle(self.display, (0, 255, 0), self.screen_position((x, y)), hitvol.shape["radius"], 0)
+                pygame.draw.circle(self.display, (0, 255, 0), self.screen_position((x, y)), hitvol.shape["radius"], 0)
             elif hitvol.shape["type"] == "rect":
                 screen_position = self.screen_position((x, y))
                 rect = (screen_position[0] - hitvol.shape["width"]/2,
                         screen_position[1] - hitvol.shape["height"]/2,
                         hitvol.shape["width"], hitvol.shape["height"])
-                #pygame.draw.rect(self.display, (0, 255, 0), rect, 0)
+                pygame.draw.rect(self.display, (0, 255, 0), rect, 0)
 
         for entity, actor in self.entity_manager.pairs_for_type(Actor):
             position = self.entity_manager.component_for_entity(entity, Position)
